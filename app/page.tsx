@@ -10,8 +10,8 @@ const statuses: TaskStatus[] = ["To Do", "Doing", "Completed"];
 
 const seedTasks: Task[] = [
   { id: 1, name: "Design Homepage", priority: "High", member: "N", dueDate: "12 Sep 2026", status: "To Do" },
-  { id: 2, name: "Develop Login feature", priority: "Low", member: "K", dueDate: "15 Sep 2026", status: "To Do" },
-  { id: 3, name: "Test Payment Gateway", priority: "Medium", member: "A", dueDate: "18 Sep 2026", status: "To Do" },
+  { id: 2, name: "Develop Login feature", priority: "Low", member: "CN", dueDate: "15 Sep 2026", status: "To Do" },
+  { id: 3, name: "Test Payment Gateway", priority: "Medium", member: "+", dueDate: "18 Sep 2026", status: "To Do" },
   { id: 4, name: "Create responsive layout", priority: "High", member: "N", dueDate: "10 Sep 2026", status: "Doing" },
   { id: 5, name: "Connect task API", priority: "Medium", member: "K", dueDate: "14 Sep 2026", status: "Doing" },
   { id: 6, name: "Review accessibility", priority: "Low", member: "A", dueDate: "16 Sep 2026", status: "Completed" },
@@ -45,7 +45,10 @@ export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [fieldsOpen, setFieldsOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState<"All" | TaskPriority>("All");
   const [notice, setNotice] = useState("");
   const [guest, setGuest] = useState(false);
   const [apiOnline, setApiOnline] = useState(Boolean(API_URL));
@@ -75,9 +78,12 @@ export default function Home() {
 
   const filteredTasks = useMemo(() => {
     const value = query.trim().toLowerCase();
-    if (!value) return tasks;
-    return tasks.filter((task) => `${task.name} ${task.priority} ${task.member} ${task.dueDate}`.toLowerCase().includes(value));
-  }, [query, tasks]);
+    return tasks.filter((task) => {
+      const matchesQuery = !value || `${task.name} ${task.priority} ${task.member} ${task.dueDate}`.toLowerCase().includes(value);
+      const matchesPriority = priorityFilter === "All" || task.priority === priorityFilter;
+      return matchesQuery && matchesPriority;
+    });
+  }, [query, priorityFilter, tasks]);
 
   const guestLogin = async () => {
     try {
@@ -113,6 +119,8 @@ export default function Home() {
     setNotice("Task deleted");
   };
 
+  const buttonClass = `rounded-md border px-3 py-2 text-[12px] font-medium transition ${darkMode ? "border-[#383838] bg-[#181818] hover:bg-[#232323]" : "border-[#e2e2e2] bg-white hover:bg-[#fafafa]"}`;
+
   return (
     <div className={`min-h-screen transition-colors ${darkMode ? "bg-[#111111] text-white" : "bg-white text-[#202020]"}`}>
       <div className="flex min-h-screen">
@@ -120,23 +128,33 @@ export default function Home() {
         {mobileOpen && <><button aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/30 md:hidden" onClick={() => setMobileOpen(false)} /><div className="fixed inset-y-0 left-0 z-40 md:hidden"><Sidebar darkMode={darkMode} active={activeSection} onChange={(value) => { setActiveSection(value); setMobileOpen(false); }} mobile /></div></>}
 
         <main className="min-w-0 flex-1">
-          <header className={`sticky top-0 z-20 flex h-16 items-center justify-between border-b px-4 sm:px-6 lg:px-8 ${darkMode ? "border-[#2b2b2b] bg-[#111111]/95" : "border-[#ececec] bg-white/95"} backdrop-blur`}>
-            <div className="flex items-center gap-3"><button className="rounded-lg p-2 md:hidden" aria-label="Open navigation" onClick={() => setMobileOpen(true)}>☰</button><h1 className="text-sm font-semibold">Assessment Task</h1></div>
+          <header className={`sticky top-0 z-20 flex h-[60px] items-center justify-between border-b px-4 sm:px-6 lg:px-8 ${darkMode ? "border-[#2b2b2b] bg-[#111111]/95" : "border-[#ededed] bg-white/95"} backdrop-blur`}>
+            <div className="flex items-center gap-3"><button className="rounded-md p-2 md:hidden" aria-label="Open navigation" onClick={() => setMobileOpen(true)}>☰</button><h1 className="text-[13px] font-semibold">Assessment Task</h1></div>
             <div className="flex items-center gap-2">
-              <button onClick={() => setDarkMode((value) => !value)} className={`rounded-full border px-3 py-1.5 text-xs ${darkMode ? "border-[#3b3b3b] bg-[#1d1d1d]" : "border-[#dedede] bg-white"}`}>{darkMode ? "☀ Light" : "☾ Dark"}</button>
-              <button onClick={guestLogin} className="flex h-9 items-center gap-2 rounded-full bg-[#cdbbff] px-3 text-xs font-bold text-[#31253f]" aria-label="Guest Login"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/50">K</span>{guest ? "Guest" : "Guest Login"}</button>
+              <button onClick={() => setDarkMode((value) => !value)} className={`rounded-full border px-3 py-1.5 text-[11px] ${darkMode ? "border-[#3b3b3b] bg-[#1d1d1d]" : "border-[#dedede] bg-white"}`}>{darkMode ? "☀ Light" : "☾ Dark"}</button>
+              <button onClick={guestLogin} className="flex h-8 items-center gap-2 rounded-full bg-[#d7c3ff] px-3 text-[11px] font-bold text-[#31253f]" aria-label="Guest Login"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/60">K</span>{guest ? "Guest" : "Guest Login"}</button>
             </div>
           </header>
 
-          <section className="px-4 py-7 sm:px-6 lg:px-10 lg:py-9">
+          <section className="px-4 py-8 sm:px-7 lg:px-10 lg:py-10">
             {activeSection === "Tasks" ? <>
-              <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-2xl font-semibold tracking-tight">Tasks</h2><p className="mt-1 text-sm text-slate-400">Manage and track your tasks</p></div><div className="flex flex-wrap gap-2"><button onClick={() => setSearchOpen((value) => !value)} className={`rounded-lg border px-4 py-2 text-sm ${darkMode ? "border-[#363636]" : "border-[#dddddd]"}`}>⌕ Search</button><button onClick={() => setShowAddTask(true)} className="rounded-lg bg-[#171717] px-4 py-2 text-sm font-medium text-white">+ Add Task</button></div></div>
-              {searchOpen && <div className="mb-6"><input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tasks..." aria-label="Search tasks" className={`w-full rounded-xl border px-4 py-3 text-sm outline-none ${darkMode ? "border-[#333] bg-[#1a1a1a]" : "border-[#e2e2e2]"}`} /></div>}
-              {!guest && <div className={`mb-6 rounded-xl border p-4 text-sm ${darkMode ? "border-[#303030] bg-[#191919]" : "border-[#ececec] bg-[#fafafa]"}`}><span className="font-medium">Guest mode:</span> click <button onClick={guestLogin} className="font-semibold underline">Guest Login</button> to start a guest session. {API_URL ? "The NestJS API is configured." : "The UI will work locally without an API."}</div>}
-              <div className="space-y-8">{statuses.map((status) => { const group = filteredTasks.filter((task) => task.status === status); return <section key={status}><div className="mb-3 flex items-center gap-2"><span className="text-xs text-slate-400">⌄</span><h3 className="text-sm font-semibold">{status}</h3><span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-500 dark:bg-slate-800 dark:text-slate-300">{group.length}</span></div><TaskTable tasks={group} darkMode={darkMode} onMove={moveTask} onDelete={deleteTask} /></section>; })}</div>
+              <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div><h2 className="text-[24px] font-semibold tracking-[-0.02em]">Tasks</h2></div>
+                <div className="relative flex flex-wrap gap-2">
+                  <button aria-label="Search tasks" onClick={() => setSearchOpen((value) => !value)} className="rounded-md p-2 text-[#777] hover:bg-black/5 dark:hover:bg-white/5">⌕</button>
+                  <button onClick={() => setFieldsOpen((value) => !value)} className={buttonClass}>▦ &nbsp; Fields</button>
+                  <button onClick={() => setFilterOpen((value) => !value)} className={buttonClass}>▽ &nbsp; Filter</button>
+                  <button onClick={() => setShowAddTask(true)} className="rounded-md bg-[#262626] px-4 py-2 text-[12px] font-medium text-white hover:bg-[#171717]">+ Add Task</button>
+                  {fieldsOpen && <div className={`absolute right-[168px] top-11 z-30 w-40 rounded-lg border p-3 text-xs shadow-lg ${darkMode ? "border-[#333] bg-[#1c1c1c]" : "border-[#e4e4e4] bg-white"}`}><p className="mb-2 font-semibold">Visible fields</p><p className="py-1 text-[#777]">Task</p><p className="py-1 text-[#777]">Priority</p><p className="py-1 text-[#777]">Members</p><p className="py-1 text-[#777]">Due Date</p></div>}
+                  {filterOpen && <div className={`absolute right-14 top-11 z-30 w-44 rounded-lg border p-3 shadow-lg ${darkMode ? "border-[#333] bg-[#1c1c1c]" : "border-[#e4e4e4] bg-white"}`}><p className="mb-2 text-xs font-semibold">Priority</p>{(["All", "High", "Medium", "Low"] as const).map((value) => <button key={value} onClick={() => { setPriorityFilter(value); setFilterOpen(false); }} className={`block w-full rounded px-2 py-1.5 text-left text-xs ${priorityFilter === value ? "bg-[#f0f0f0] dark:bg-[#303030]" : "hover:bg-[#f7f7f7] dark:hover:bg-[#292929]"}`}>{value}</button>)}</div>}
+                </div>
+              </div>
+              {searchOpen && <div className="mb-5"><input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search tasks..." aria-label="Search tasks" className={`w-full rounded-lg border px-4 py-2.5 text-sm outline-none ${darkMode ? "border-[#333] bg-[#1a1a1a]" : "border-[#e2e2e2]"}`} /></div>}
+              {!guest && <div className={`mb-6 rounded-lg border p-3 text-xs ${darkMode ? "border-[#303030] bg-[#191919]" : "border-[#ececec] bg-[#fafafa]"}`}><span className="font-medium">Guest mode:</span> click <button onClick={guestLogin} className="font-semibold underline">Guest Login</button> to start a guest session.</div>}
+              <div className="space-y-8">{statuses.map((status) => { const group = filteredTasks.filter((task) => task.status === status); return <section key={status}><div className="mb-3 flex items-center gap-2"><button className="text-[11px] text-[#888]" aria-label={`Collapse ${status}`}>⌄</button><h3 className="text-[13px] font-semibold">{status}</h3></div><TaskTable tasks={group} darkMode={darkMode} onMove={moveTask} onDelete={deleteTask} onAddTask={() => setShowAddTask(true)} /></section>; })}</div>
             </> : <>
-              <div className="mb-7"><h2 className="text-2xl font-semibold tracking-tight">Projects</h2><p className="mt-1 text-sm text-slate-400">Organize your workspaces and project progress</p></div>
-              <div className="grid gap-4 lg:grid-cols-3">{projects.map((project) => <article key={project.name} className={`rounded-2xl border p-5 ${darkMode ? "border-[#2d2d2d] bg-[#181818]" : "border-[#e8e8e8] bg-white"}`}><div className="mb-5 flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d8b9ff]">{project.icon}</div><span className="text-xs text-slate-400">{project.progress}%</span></div><h3 className="font-semibold">{project.name}</h3><p className="mt-1 min-h-10 text-sm leading-5 text-slate-400">{project.description}</p><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-full rounded-full bg-[#8d6bc2]" style={{ width: `${project.progress}%` }} /></div></article>)}</div>
+              <div className="mb-7"><h2 className="text-[24px] font-semibold tracking-[-0.02em]">Projects</h2><p className="mt-1 text-sm text-slate-400">Organize your workspaces and project progress</p></div>
+              <div className="grid gap-4 lg:grid-cols-3">{projects.map((project) => <article key={project.name} className={`rounded-xl border p-5 ${darkMode ? "border-[#2d2d2d] bg-[#181818]" : "border-[#e8e8e8] bg-white"}`}><div className="mb-5 flex items-center justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#d8b9ff]">{project.icon}</div><span className="text-xs text-slate-400">{project.progress}%</span></div><h3 className="font-semibold">{project.name}</h3><p className="mt-1 min-h-10 text-sm leading-5 text-slate-400">{project.description}</p><div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-full rounded-full bg-[#8d6bc2]" style={{ width: `${project.progress}%` }} /></div></article>)}</div>
             </>}
           </section>
         </main>
