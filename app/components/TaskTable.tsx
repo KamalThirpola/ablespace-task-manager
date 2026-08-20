@@ -13,38 +13,96 @@ export type Task = {
 };
 
 const priorityClass: Record<TaskPriority, string> = {
-  High: "bg-red-50 text-red-700 ring-red-100 dark:bg-red-950/40 dark:text-red-300 dark:ring-red-900/60",
-  Medium: "bg-amber-50 text-amber-700 ring-amber-100 dark:bg-amber-950/40 dark:text-amber-300 dark:ring-amber-900/60",
-  Low: "bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700",
+  High: "text-[#b85c5c]",
+  Medium: "text-[#b87543]",
+  Low: "text-[#777777]",
 };
 
-export function TaskTable({ tasks, darkMode, onMove, onDelete }: { tasks: Task[]; darkMode: boolean; onMove: (id: number, status: TaskStatus) => void; onDelete: (id: number) => void }) {
+export function TaskTable({
+  tasks,
+  darkMode,
+  onMove,
+  onDelete,
+  onAddTask,
+}: {
+  tasks: Task[];
+  darkMode: boolean;
+  onMove: (id: number, status: TaskStatus) => void;
+  onDelete: (id: number) => void;
+  onAddTask?: () => void;
+}) {
   const statuses: TaskStatus[] = ["To Do", "Doing", "Completed"];
+
   return (
-    <div className={`overflow-x-auto rounded-xl border ${darkMode ? "border-[#2d2d2d]" : "border-[#e8e8e8]"}`}>
-      <table className="w-full min-w-[680px] text-sm">
-        <thead className={darkMode ? "bg-[#1b1b1b] text-slate-400" : "bg-[#fafafa] text-slate-500"}>
-          <tr className="text-left text-xs">
-            <th className="px-4 py-3 font-medium">Task</th><th className="px-4 py-3 font-medium">Priority</th><th className="px-4 py-3 font-medium">Members</th><th className="px-4 py-3 font-medium">Due Date</th><th className="px-4 py-3 text-right font-medium">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.length === 0 ? <tr><td colSpan={5} className="px-4 py-8 text-center text-slate-400">No tasks found.</td></tr> : tasks.map((task) => (
-            <tr key={task.id} className={`border-t ${darkMode ? "border-[#2b2b2b] hover:bg-white/[0.02]" : "border-[#eeeeee] hover:bg-slate-50/70"}`}>
-              <td className="px-4 py-4 font-medium">{task.name}</td>
-              <td className="px-4 py-4"><span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ring-1 ${priorityClass[task.priority]}`}>{task.priority}</span></td>
-              <td className="px-4 py-4"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#ded2ff] text-xs font-semibold text-[#4b3d63]">{task.member}</span></td>
-              <td className="px-4 py-4 text-slate-500 dark:text-slate-300">{task.dueDate}</td>
-              <td className="px-4 py-4 text-right">
-                <select aria-label={`Change status for ${task.name}`} value={task.status} onChange={(e) => onMove(task.id, e.target.value as TaskStatus)} className={`mr-2 rounded-md border px-2 py-1 text-xs ${darkMode ? "border-[#3a3a3a] bg-[#191919]" : "border-[#dddddd] bg-white"}`}>
-                  {statuses.map((status) => <option key={status}>{status}</option>)}
-                </select>
-                <button aria-label={`Delete ${task.name}`} onClick={() => onDelete(task.id)} className="rounded-md px-2 py-1 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">Delete</button>
-              </td>
+    <div className={`overflow-hidden rounded-md border ${darkMode ? "border-[#303030]" : "border-[#e8e8e8]"}`}>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[760px] text-sm">
+          <thead className={darkMode ? "bg-[#181818] text-[#8f8f8f]" : "bg-[#fafafa] text-[#777777]"}>
+            <tr className="h-11 text-left text-[12px] font-medium">
+              <th className="w-[43%] px-5">Task</th>
+              <th className="w-[12%] px-4">Priority</th>
+              <th className="w-[15%] px-4">Members</th>
+              <th className="w-[20%] px-4">Due Date</th>
+              <th className="w-[10%] px-4 text-right">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {tasks.map((task) => (
+              <tr
+                key={task.id}
+                className={`h-12 border-t ${darkMode ? "border-[#2b2b2b] hover:bg-white/[0.02]" : "border-[#eeeeee] hover:bg-[#fafafa]"}`}
+              >
+                <td className="px-5 font-medium text-[13px]">{task.name}</td>
+                <td className="px-4">
+                  <span className={`text-[12px] font-medium ${priorityClass[task.priority]}`}>
+                    <span className="mr-1 text-[9px]">◢</span>{task.priority}
+                  </span>
+                </td>
+                <td className="px-4">
+                  <div className="flex items-center -space-x-1">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-[#d9c5ff] text-[11px] font-semibold text-[#4d3d61] dark:border-[#181818]">
+                      {task.member}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 text-[12px] text-[#666666] dark:text-[#b0b0b0]">{task.dueDate}</td>
+                <td className="px-4 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <select
+                      aria-label={`Change status for ${task.name}`}
+                      value={task.status}
+                      onChange={(e) => onMove(task.id, e.target.value as TaskStatus)}
+                      className={`max-w-6 cursor-pointer appearance-none border-0 bg-transparent px-1 text-xs outline-none ${darkMode ? "text-[#aaa]" : "text-[#888]"}`}
+                    >
+                      {statuses.map((status) => <option key={status}>{status}</option>)}
+                    </select>
+                    <button
+                      aria-label={`Delete ${task.name}`}
+                      onClick={() => onDelete(task.id)}
+                      className="rounded px-2 py-1 text-[16px] leading-none text-[#888] hover:bg-black/5 dark:hover:bg-white/5"
+                    >
+                      ···
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {tasks.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-5 py-7 text-center text-xs text-[#999]">No tasks found.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      {onAddTask && (
+        <button
+          onClick={onAddTask}
+          className={`flex w-full items-center border-t px-5 py-3 text-left text-[12px] font-medium transition ${darkMode ? "border-[#303030] text-[#aaa] hover:bg-white/[0.03]" : "border-[#eeeeee] text-[#777] hover:bg-[#fafafa]"}`}
+        >
+          + Add Task
+        </button>
+      )}
     </div>
   );
 }
