@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AbleSpace Task Manager
 
-## Getting Started
+A responsive task-management dashboard built for the AbleSpace assessment task using Next.js, React, TypeScript and Tailwind CSS.
 
-First, run the development server:
+## Implemented
+
+- AbleSpace-style workspace sidebar with Tasks and Projects navigation
+- Responsive desktop and mobile layout
+- Task groups: To Do, Doing and Completed
+- Task table with priority, member, due date and actions
+- Add Task modal with validation
+- Move tasks between statuses
+- Delete tasks
+- Task search by name, priority, member or due date
+- Light/dark theme toggle
+- Profile menu and feedback notifications
+- Local persistence using browser localStorage
+- Projects overview cards and progress indicators
+- Accessible labels, buttons and dialog semantics
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Production build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Tech stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS 4
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The current assessment implementation is a frontend-first prototype. Tasks persist in the browser with `localStorage`; there is no remote database, authentication service, or external task API in the repository yet. Those pieces should only be added if the assessment guideline explicitly requires a backend.
